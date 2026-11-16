@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reinigung Beispiel – Bonn</title>
+  <style>
+    :root {
+      --bg: #f5f8fc;
+      --card: #ffffff;
+      --text: #1b2733;
+      --muted: #4d5b6a;
+      --line: #d9e2ee;
+      --accent: #1a5fb4;
+      --accent-soft: #e6f0fc;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { font-size: 20px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.55;
+    }
+
+    /* Black-Friday-Banner */
+    .banner {
+      background: #14181f;
+      color: #ffd23f;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.05rem;
+      line-height: 1.4;
+      padding: 0.9rem 1rem;
+    }
+
+    .banner[hidden] { display: none; }
+
+    /* Anruf-Leiste: bleibt beim Scrollen oben sichtbar */
+    .anrufleiste {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(20, 40, 70, 0.12);
+      padding: 0.6rem 1rem;
+    }
+
+    .anruf {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+    }
+
+    .anruf svg { width: 1.6rem; height: 1.6rem; flex: none; }
+    .anruf small { font-weight: 500; font-size: 0.8rem; opacity: 0.95; }
+
+    header {
+      background: var(--accent);
+      color: #fff;
+      text-align: center;
+      padding: 2.25rem 1rem 2.25rem;
+    }
+
+    header h1 { font-size: 2rem; line-height: 1.2; margin-bottom: 0.4rem; }
+    header p { font-size: 1.1rem; opacity: 0.95; }
+
+    main { max-width: 720px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.5rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 { font-size: 1.4rem; color: var(--accent); margin-bottom: 1rem; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th, td { text-align: left; padding: 0.7rem 0.25rem; border-bottom: 1px solid var(--line); }
+    tr:last-child th, tr:last-child td { border-bottom: none; }
+    td:last-child { text-align: right; font-weight: 600; white-space: nowrap; }
+    th { font-weight: 500; }
+
+    .heute { background: var(--accent-soft); }
+
+    .hinweis { color: var(--muted); font-size: 0.85rem; margin-top: 0.9rem; }
+
+    /* Rechner */
+    .zeile {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .zeile:last-of-type { border-bottom: none; }
+
+    .zeile .name { flex: 1; }
+    .zeile .name small { display: block; color: var(--muted); font-size: 0.8rem; }
+
+    .zaehler { display: flex; align-items: center; gap: 0.4rem; }
+
+    .zaehler button {
+      width: 2.9rem;
+      height: 2.9rem;
+      font-size: 1.5rem;
+      line-height: 1;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+    }
+
+    .zaehler button:active { background: var(--accent-soft); }
+
+    .zaehler input {
+      width: 3.6rem;
+      height: 2.9rem;
+      text-align: center;
+      font: inherit;
+      font-weight: 600;
+      border: 2px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      -moz-appearance: textfield;
+    }
+
+    .zaehler input::-webkit-outer-spin-button,
+    .zaehler input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+    .rechnung { margin-top: 1rem; }
+
+    .posten {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.35rem 0.1rem;
+      font-size: 1rem;
+    }
+
+    .posten[hidden] { display: none; }
+    .posten.rabatt { color: #8a1c14; font-weight: 600; }
+
+    .summe {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      background: var(--accent-soft);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-top: 0.6rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    #summe { font-size: 1.6rem; color: var(--accent); }
+
+    .knopf {
+      display: block;
+      width: 100%;
+      text-align: center;
+      text-decoration: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 600;
+      padding: 1.1rem 1rem;
+      border-radius: 14px;
+      margin-top: 1.25rem;
+    }
+
+    .knopf:hover, .anruf:hover { filter: brightness(1.1); }
+
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 3px solid #f5a623;
+      outline-offset: 2px;
+    }
+
+    footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 0 1rem 2.5rem; }
+
+    @media (max-width: 420px) {
+      html { font-size: 18px; }
+      .zaehler button { width: 2.7rem; height: 2.7rem; }
+      .zaehler input { width: 3.2rem; height: 2.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="banner" class="banner" role="note">
+    Black Friday: 50&nbsp;% Rabatt auf das zweite Teil, gültig bis 30.11.
+  </div>
+
+  <div class="anrufleiste">
+    <a class="anruf" href="tel:+492280000000" aria-label="Jetzt anrufen: +49 228 0000000">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/>
+      </svg>
+      <span>Jetzt anrufen <small>+49 228 0000000</small></span>
+    </a>
+  </div>
+
+  <header>
+    <h1>Reinigung Beispiel</h1>
+    <p>Ihre Reinigung in Bonn · Musterstraße 12, 53111 Bonn</p>
+  </header>
+
+  <main>
+    <section aria-labelledby="zeiten">
+      <h2 id="zeiten">Öffnungszeiten</h2>
+      <table>
+        <tbody id="oeffnungszeiten"></tbody>
+      </table>
+      <p class="hinweis">Telefon: +49 228 0000000 (Platzhalter)</p>
+    </section>
+
+    <section aria-labelledby="preise">
+      <h2 id="preise">Preisliste</h2>
+      <table>
+        <tbody id="preisliste"></tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="rechner">
+      <h2 id="rechner">Preisrechner</h2>
+      <div id="rechner-zeilen"></div>
+
+      <div class="rechnung">
+        <div class="posten">
+          <span>Zwischensumme</span>
+          <span id="zwischensumme">0,00 €</span>
+        </div>
+        <div id="rabatt-zeile" class="posten rabatt">
+          <span>Black-Friday-Rabatt</span>
+          <span id="rabatt">−0,00 €</span>
+        </div>
+        <div class="summe">
+          <span>Summe</span>
+          <span id="summe" aria-live="polite">0,00 €</span>
+        </div>
+      </div>
+
+      <p id="rabatt-hinweis" class="hinweis">Von je zwei Teilen wird das günstigere zum halben Preis berechnet.</p>
+
+      <a id="whatsapp" class="knopf" href="#" target="_blank" rel="noopener">Abholung anfragen (WhatsApp)</a>
+      <p class="hinweis">Es öffnet sich WhatsApp mit einer vorbereiteten Nachricht. Sie können sie vor dem Senden noch ändern.</p>
+    </section>
+  </main>
+
+  <footer>Demo-Seite mit Platzhalterdaten · erfundenes Geschäft</footer>
+
+  <script>
+    // ---------- Daten (hier anpassen) ----------
+    const WHATSAPP_NUMMER = "491510000000"; // Platzhalter, ohne + und ohne Leerzeichen
+
+    // Aktion läuft bis zum Ende dieses Tages (Monat: 0 = Januar, also 10 = November)
+    const AKTION_BIS = new Date(2026, 10, 30, 23, 59, 59);
+
+    const ARTIKEL = [
+      { id: "hemd",        name: "Hemd",       preis: 3.50,  info: "gewaschen und gebügelt" },
+      { id: "anzug",       name: "Anzug",      preis: 14.90, info: "2-teilig" },
+      { id: "mantel",      name: "Mantel",     preis: 16.90, info: "" },
+      { id: "bettwaesche", name: "Bettwäsche", preis: 9.90,  info: "pro Set" }
+    ];
+
+    // Wochentage in der Reihenfolge von JavaScript: 0 = Sonntag
+    const ZEITEN = [
+      { tage: [1, 2, 3, 4, 5], label: "Montag bis Freitag", zeit: "8:00 – 18:00 Uhr" },
+      { tage: [6],             label: "Samstag",            zeit: "9:00 – 13:00 Uhr" },
+      { tage: [0],             label: "Sonntag",            zeit: "geschlossen" }
+    ];
+
+    const euro = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+    const inEuro = cent => euro.format(cent / 100);
+
+    // ---------- Aktion nur bis zum Ablaufdatum ----------
+    const aktionAktiv = Date.now() <= AKTION_BIS.getTime();
+    if (!aktionAktiv) {
+      document.getElementById("banner").hidden = true;
+      document.getElementById("rabatt-zeile").hidden = true;
+      document.getElementById("rabatt-hinweis").hidden = true;
+    }
+
+    // ---------- Öffnungszeiten (heutige Zeile wird hervorgehoben) ----------
+    const heute = new Date().getDay();
+    const zeitenBody = document.getElementById("oeffnungszeiten");
+
+    ZEITEN.forEach(eintrag => {
+      const tr = document.createElement("tr");
+      if (eintrag.tage.includes(heute)) tr.className = "heute";
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = eintrag.label;
+      const td = document.createElement("td");
+      td.textContent = eintrag.zeit;
+      tr.append(th, td);
+      zeitenBody.appendChild(tr);
+    });
+
+    // ---------- Preisliste ----------
+    const preislisteBody = document.getElementById("preisliste");
+
+    ARTIKEL.forEach(artikel => {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = artikel.name + (artikel.info ? " (" + artikel.info + ")" : "");
+      const td = document.createElement("td");
+      td.textContent = euro.format(artikel.preis);
+      tr.append(th, td);
+      preislisteBody.appendChild(tr);
+    });
+
+    // ---------- Preisrechner ----------
+    const rechnerZeilen = document.getElementById("rechner-zeilen");
+    const zwischenAnzeige = document.getElementById("zwischensumme");
+    const rabattAnzeige = document.getElementById("rabatt");
+    const summeAnzeige = document.getElementById("summe");
+    const whatsappLink = document.getElementById("whatsapp");
+    const felder = {};
+
+    function begrenze(wert) {
+      const zahl = parseInt(wert, 10);
+      if (isNaN(zahl) || zahl < 0) return 0;
+      return Math.min(zahl, 99);
+    }
+
+    ARTIKEL.forEach(artikel => {
+      const zeile = document.createElement("div");
+      zeile.className = "zeile";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = artikel.name;
+      const klein = document.createElement("small");
+      klein.textContent = euro.format(artikel.preis) + " pro Stück";
+      name.appendChild(klein);
+
+      const zaehler = document.createElement("div");
+      zaehler.className = "zaehler";
+
+      const minus = document.createElement("button");
+      minus.type = "button";
+      minus.textContent = "−";
+      minus.setAttribute("aria-label", artikel.name + " weniger");
+
+      const feld = document.createElement("input");
+      feld.type = "number";
+      feld.inputMode = "numeric";
+      feld.min = "0";
+      feld.max = "99";
+      feld.value = "0";
+      feld.setAttribute("aria-label", "Anzahl " + artikel.name);
+
+      const plus = document.createElement("button");
+      plus.type = "button";
+      plus.textContent = "+";
+      plus.setAttribute("aria-label", artikel.name + " mehr");
+
+      minus.addEventListener("click", () => { feld.value = Math.max(begrenze(feld.value) - 1, 0); aktualisiere(); });
+      plus.addEventListener("click", () => { feld.value = Math.min(begrenze(feld.value) + 1, 99); aktualisiere(); });
+      feld.addEventListener("input", aktualisiere);
+      feld.addEventListener("blur", () => { feld.value = begrenze(feld.value); aktualisiere(); });
+
+      zaehler.append(minus, feld, plus);
+      zeile.append(name, zaehler);
+      rechnerZeilen.appendChild(zeile);
+      felder[artikel.id] = feld;
+    });
+
+    // Rechnet in Cent, damit keine Rundungsfehler entstehen
+    function berechne() {
+      const einzelpreise = [];
+      const zeilen = [];
+
+      ARTIKEL.forEach(artikel => {
+        const anzahl = begrenze(felder[artikel.id].value);
+        const cent = Math.round(artikel.preis * 100);
+        for (let i = 0; i < anzahl; i++) einzelpreise.push(cent);
+        if (anzahl > 0) zeilen.push("- " + anzahl + " × " + artikel.name);
+      });
+
+      const zwischensumme = einzelpreise.reduce((a, b) => a + b, 0);
+
+      // Teuerste zuerst sortieren und je zwei Teile zu einem Paar zusammenfassen:
+      // Das günstigere Teil jedes Paares (Position 2, 4, 6 ...) kostet nur die Hälfte
+      let rabatt = 0;
+      if (aktionAktiv) {
+        einzelpreise.sort((a, b) => b - a);
+        for (let i = 1; i < einzelpreise.length; i += 2) {
+          rabatt += Math.round(einzelpreise[i] / 2);
+        }
+      }
+
+      return { zwischensumme, rabatt, zeilen };
+    }
+
+    function aktualisiere() {
+      const { zwischensumme, rabatt, zeilen } = berechne();
+      const summe = zwischensumme - rabatt;
+
+      zwischenAnzeige.textContent = inEuro(zwischensumme);
+      rabattAnzeige.textContent = "−" + inEuro(rabatt);
+      summeAnzeige.textContent = inEuro(summe);
+
+      // Vorbereitete WhatsApp-Nachricht
+      let nachricht = "Guten Tag, ich möchte gerne eine Abholung anfragen.";
+      if (zeilen.length > 0) {
+        nachricht += "\n\nMeine Wäsche:\n" + zeilen.join("\n");
+        if (rabatt > 0) nachricht += "\n\nBlack-Friday-Rabatt: −" + inEuro(rabatt);
+        nachricht += "\nVoraussichtliche Summe: " + inEuro(summe);
+      }
+      nachricht += "\n\nMeine Adresse: ";
+
+      whatsappLink.href = "https://wa.me/" + WHATSAPP_NUMMER + "?text=" + encodeURIComponent(nachricht);
+    }
+
+    aktualisiere();
+  </script>
+</body>
+</html>
